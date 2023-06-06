@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>EXAMPLE</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="log">
+      <input type="text" id="login"/>
+      <button onclick="sendPassword()">login</button>
+      <p id="message" hidden style="color: red">
+        There was a problem with sending the password
+      </p>
+      <p id="error" hidden style="color: red">Password is not correct</p>
+    </div>
+    <div id="content" hidden>
+      <div id="datablocks"></div>
+      <button id="addition">+</button>
+      <div id="buttons">
+        <button onclick="unification()">zapisz</button>
+        <button onclick="generate()">Wygeneruj</button>
+      </div>
+    </div>
+    <script>
+      function regulate(regulator, mode) {
+        var inputElement = document.getElementById(mode + regulator).value;
+        var inputText = inputElement;
+        var values = inputText.split(",");
+        var numbers = values.map(Number);
+        const sum = numbers.reduce((acc, num) => acc + num, 0);
+        if (sum == 0) {
+          const ones = numbers.map(() => "1");
+          inputElement = ones.join(",");
+          const newSum = numbers.length;
+          const result = ones.map((num) => (num / newSum).toFixed(9));
+          const roundedResult = result.map(parseFloat);
+            inputElement = roundedResult.join(",");
+        }else{
+        const result = numbers.map((num) => (num / sum).toFixed(9));
+        const roundedResult = result.map(parseFloat);
+        inputElement = roundedResult.join(",");
+      }
+        document.getElementById(mode + regulator).value = inputElement;
+      }
+
+      function checkId(number) {
+        const text = document.getElementById("id" + number);
+        const result = document.getElementById("idlabel" + number);
+        if(text.value.length == 0){
+          result.style.color = "red";
+        }
+    }
+      function countNumbers(regulator, mode) {
+        const resultDiv = document.getElementById(mode + "label" + regulator);
+        var text = document.getElementById(mode + regulator).value;
+        const numbers = text.replace(/[^0-9,]/g, "").split(",");
+        const filteredNumbers = numbers.filter(
+          (number) => number.trim() !== ""
+        );
+        const count = filteredNumbers.length;
+        if (mode == "days") {
+          resultDiv.innerHTML = mode + "(" + `${count}` + "/7)";
+          if (count != 7) {
+            resultDiv.style.color = "red";
+          } else {
+            resultDiv.style.color = "black";
+          }
+        }
+
+        if (mode == "weeks") {
+          resultDiv.innerHTML = mode + "(" + `${count}` + "/53)";
+          if (count != 53) {
+            resultDiv.style.color = "red";
+          } else {
+            resultDiv.style.color = "black";
+          }
+        }
+
+        if (mode == "total" || mode == "factor") {
+          resultDiv.innerHTML = mode + "(" + `${count}` + "/1)";
+          if (count != 1) {
+            resultDiv.style.color = "red";
+          } else {
+            resultDiv.style.color = "black";
+          }
+        }
+      }
+
+      function deduction(which) {
+        var divElement = document.getElementById(which);
+        datablocks.removeChild(divElement);
+      }
+
+      function add(currentvalue,number,file) {
+
+        var newvalue = currentvalue + number;
+        var datablocks = document.getElementById("datablocks");
+
+        var div = document.createElement("div");
+        div.setAttribute("id", newvalue);
+        div.setAttribute("class", "blocks");
+
+        var idlabel = document.createElement("p");
+        idlabel.setAttribute("id", "idlabel"+ newvalue);
+        idlabel.textContent = "id";
+        
+
+        var id = document.createElement("input");
+        id.setAttribute("type", "text");
+        id.setAttribute("id", "id" + newvalue);
+        id.setAttribute("class", "key");
+        id.setAttribute("oninput","checkId(" + newvalue + ")");
+
+        var dayslabel = document.createElement("p");
+        dayslabel.textContent = "days";
+        dayslabel.setAttribute("id", "dayslabel" + newvalue);
+
+        var days = document.createElement("input");
+        days.setAttribute("type", "text");
+        days.setAttribute("id", "days" + newvalue);
+        days.setAttribute("oninput","countNumbers(" + newvalue + "," + '"days"' + ")");
+
+        var normalizedays = document.createElement("button");
+        normalizedays.textContent = "->|";
+        normalizedays.setAttribute("onclick","regulate(" + newvalue + "," + '"days"' + ")");
+
+        var weekslabel = document.createElement("p");
+        weekslabel.textContent = "weeks";
+        weekslabel.setAttribute("id", "weekslabel" + newvalue);
+
+        var weeks = document.createElement("input");
+        weeks.setAttribute("type", "text");
+        weeks.setAttribute("id", "weeks" + newvalue);
+        weeks.setAttribute("oninput","countNumbers(" + newvalue + "," + '"weeks"' + ")");
+
+        var normalizeweeks = document.createElement("button");
+        normalizeweeks.textContent = "->|";
+        normalizeweeks.setAttribute("onclick","regulate(" + newvalue + "," + '"weeks"' + ")");
+
+        var totallabel = document.createElement("p");
+        totallabel.textContent = "total";
+        totallabel.setAttribute("id", "totallabel" + newvalue);
+
+        var total = document.createElement("input");
+        total.setAttribute("type", "text");
+        total.setAttribute("id", "total" + newvalue);
+        total.setAttribute("oninput","countNumbers(" + newvalue + "," + '"total"' + ")");
+
+        var factorlabel = document.createElement("p");
+        factorlabel.textContent = "factor";
+        factorlabel.setAttribute("id", "factorlabel" + newvalue);
+
+        var factor = document.createElement("input");
+        factor.setAttribute("type", "text");
+        factor.setAttribute("id", "factor" + newvalue);
+        factor.setAttribute("oninput","countNumbers(" + newvalue + "," + '"factor"' + ")");
+
+        var deduct = document.createElement("button");
+        deduct.textContent = "-";
+        deduct.setAttribute("onclick", "deduction(" + newvalue + ")");
+
+
+        if(number == 1)
+        {
+          const addition = document.getElementById("addition");
+          addition.setAttribute("onclick", "add(" + newvalue + ", " + Number(1) + ")");
+          id.setAttribute("value",Date.now());
+          days.setAttribute("value", "0,0,0,0,0,0,0");
+          weeks.setAttribute("value", "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+          total.setAttribute("value", "0");
+          factor.setAttribute("value", "0");
+        }
+        else if(number == 0)
+        {
+          var objectNames = Object.keys(file);
+          var currentKey = objectNames[newvalue-1];
+          id.setAttribute("value", currentKey);
+          days.setAttribute("value", file[currentKey].days);
+          weeks.setAttribute("value", file[currentKey].weeks);
+          total.setAttribute("value", file[currentKey].total);
+          factor.setAttribute("value", file[currentKey].factor);
+        }
+
+        datablocks.appendChild(div);
+        div.appendChild(idlabel);
+        div.appendChild(id);
+        div.appendChild(dayslabel);
+        div.appendChild(days);
+        div.appendChild(normalizedays);
+        div.appendChild(weekslabel);
+        div.appendChild(weeks);
+        div.appendChild(normalizeweeks);
+        div.appendChild(totallabel);
+        div.appendChild(total);
+        div.appendChild(factorlabel);
+        div.appendChild(factor);
+        div.appendChild(deduct);
+
+        checkId(newvalue)
+        countNumbers(newvalue, "days");
+        countNumbers(newvalue, "weeks");
+        countNumbers(newvalue, "total");
+        countNumbers(newvalue, "factor");
+      }
+
+      function unification() {
+        const elements = document.getElementsByClassName("blocks");
+        const count = elements.length;
+        const result = {};
+
+        for (let i = 0; i < count; i++) {
+          var chosenElement = elements[i];
+          const keyElement = chosenElement.querySelector(".key");
+          const key = keyElement.value;
+
+          const values = [];
+
+          for (let j = 1; j < 5; j++) {
+            var inputElements = chosenElement.querySelectorAll("input");
+
+            var chosenInputElement = inputElements[j];
+
+            values.push(chosenInputElement.value);
+          }
+          var daysarray = values[0].split(",").map(Number);
+          var weeksarray = values[1].split(",").map(Number);
+          var totalarray = Number(values[2]);
+          var factorarray = Number(values[3]);
+          console.log("days: " + daysarray);
+          console.log("weeks: " + weeksarray);
+          console.log("total: " + totalarray);
+          console.log("factor: " + factorarray);
+          result[key] = {
+            days: daysarray,
+            weeks: weeksarray,
+            total: totalarray,
+            factor: factorarray,
+          };
+        }
+
+        let send = JSON.stringify(result);
+        fetch("../config.php?a=write", {
+          method: "POST",
+          body: JSON.stringify({
+            pass: document.getElementById("login").value,
+            conf: send,
+          }),
+          headers: {
+            "Content-type": "application/json;",
+          },
+        })
+          .then((response) => response.json())
+          .then((json) => console.log(json))
+          .catch((error) => console.log(JSON.stringify({ error: error })));
+      }
+
+      function generate() {
+        fetch("../config.php?a=make", {
+          method: "POST",
+          body: JSON.stringify({
+            pass: document.getElementById("login").value,
+          }),
+          headers: {
+            "Content-type": "application/json;",
+          },
+        })
+          .then((response) => response.json())
+          .then((json) => console.log(json))
+          .catch((error) => console.log(JSON.stringify({ error: error })));
+      }
+
+      function sendPassword() 
+      {
+        var password = document.getElementById("login").value;
+        fetch("../config.php?a=read", {
+          method: "POST",
+          body: JSON.stringify({
+            pass: password,
+          }),
+          headers: {
+            "Content-type": "application/json;",
+          },
+        })
+          .then((response) => response.text())
+          .then((jsonString) => {
+            json = JSON.parse(jsonString);
+            if (jsonString == '{"status":"no_authority"}') 
+            {
+              document.getElementById("error").hidden = false;
+            } 
+            else 
+            {
+              document.getElementById("content").hidden = false;
+              var log = document.getElementById("log");
+              log.style.display = "none";
+              var counter = 0;
+              var objectNames = Object.keys(json);
+              objectNames.forEach(function (objectName) {
+              counter++;
+              add(counter,0,json);
+              });
+              const addition = document.getElementById("addition");
+              addition.setAttribute("onclick", "add(" + counter + ", " + Number(1) + ")");
+            }
+          })
+          .catch(
+            (error) => (document.getElementById("message").hidden = false)
+          );
+      }
+    </script>
+  </body>
+</html>
